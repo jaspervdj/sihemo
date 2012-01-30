@@ -1,0 +1,37 @@
+Name:          sihemo
+Version:       0.0.0.1
+Synopsis:      Simple Heartbeat Monitoring
+Homepage:      http://github.com/jaspervdj/sihemo
+License:       BSD3
+License-file:  LICENSE
+Author:        Jasper Van der Jeugt <m@jaspervdj.be>
+Maintainer:    Jasper Van der Jeugt <m@jaspervdj.be>
+Category:      Web
+Build-type:    Simple
+Cabal-version: >= 1.2
+
+-- Extra-source-files:  
+
+-- Constraint on the version of Cabal needed to build this package.
+
+Library
+  Hs-source-dirs: src
+
+  -- Modules exported by the library.
+  Exposed-modules:     
+    Sihemo
+  
+  
+  -- Modules not exported by this package.
+  -- Other-modules:       
+  
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  -- Build-tools:         
+  
+  Build-depends:
+    aeson           >= 0.5   && < 0.6,
+    base            >= 4     && < 5,
+    snap-core       >= 0.6   && < 0.8,
+    snap-server     >= 0.6   && < 0.8,
+    websockets      >= 0.5.2 && < 0.6,
+    websockets-snap >= 0.0   && < 0.1
