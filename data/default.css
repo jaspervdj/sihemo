@@ -7,18 +7,37 @@ body {
     margin: 0px auto 0px auto;
 }
 
-a {
-    text-decoration: none;
-    color: black;
-}
-
 div#groups h2 {
-    background-color: #ccc;
     border: 1px solid #444;
+    color: white;
     margin: 10px 0px 0px 0px;
     padding: 5px 5px 5px 5px;
 }
 
+div#groups h2.up {
+    background-color: green;
+}
+
+div#groups h2.down {
+    background-color: red;
+}
+
+div#groups div.services div.name {
+    height: 24px;
+    font-size: 16px;
+    padding: 4px 0px 4px 0px;
+}
+
 div#groups div.services div.state {
     float: right;
+    width: 24px;
+    height: 24px;
+}
+
+div#groups div.services div.state.up {
+    background-color: green;
+}
+
+div#groups div.services div.state.down {
+    background-color: red;
 }

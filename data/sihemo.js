@@ -17,9 +17,8 @@ function Group(name) {
             .addClass('services')
             .hide();
 
-    this.header = $(document.createElement('a'))
-            .append($(document.createElement('h2')).text(name))
-            .attr('href', '#')
+    this.header = $(document.createElement('h2'))
+            .text(name)
             .click(function () {servicesDiv.toggle(500)});
 
     this.div.append(this.header);
@@ -41,6 +40,17 @@ function Group(name) {
     this.appendServiceDiv = function(div) {
         this.servicesDiv.append(div);
     }
+
+    this.update = function() {
+        var up = true;
+
+        for(var i in this.services) {
+            up = up && this.services[i].state == 'up';
+        }
+
+        this.header.removeClass('up down')
+        this.header.addClass(up ? 'up' : 'down');
+    }
 }
 
 function Service(group, id, name) {
@@ -51,15 +61,21 @@ function Service(group, id, name) {
 
     this.div = $(document.createElement('div'));
     this.div.append($(document.createElement('div'))
-        .addClass('state')
-        .text(this.state));
-    this.div.append($(document.createElement('div')).text(name));
+            .addClass('state'));
+    this.div.append($(document.createElement('div'))
+            .addClass('name')
+            .text(name));
 
     group.appendServiceDiv(this.div);
 
     this.update = function(state) {
         this.state = state;
-        this.div.children('.state').text(state);
+
+        this.div.children('.state')
+                .removeClass('up down')
+                .addClass(state);
+
+        this.group.update();
     };
 }
 
