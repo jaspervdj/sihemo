@@ -12,7 +12,18 @@ function Group(name) {
     this.services = {};
 
     this.div = $(document.createElement('div'));
-    this.div.append($(document.createElement('h2')).text(name));
+
+    var servicesDiv = this.servicesDiv = $(document.createElement('div'))
+            .addClass('services')
+            .hide();
+
+    this.header = $(document.createElement('a'))
+            .append($(document.createElement('h2')).text(name))
+            .attr('href', '#')
+            .click(function () {servicesDiv.toggle(500)});
+
+    this.div.append(this.header);
+    this.div.append(this.servicesDiv);
     $('#groups').append(this.div);
 
     this.getService = function(json) {
@@ -26,6 +37,10 @@ function Group(name) {
 
         return service;
     }
+
+    this.appendServiceDiv = function(div) {
+        this.servicesDiv.append(div);
+    }
 }
 
 function Service(group, id, name) {
@@ -35,12 +50,12 @@ function Service(group, id, name) {
     this.state = 'down';
 
     this.div = $(document.createElement('div'));
-    this.div.append($(document.createElement('div')).text(name));
     this.div.append($(document.createElement('div'))
         .addClass('state')
         .text(this.state));
+    this.div.append($(document.createElement('div')).text(name));
 
-    $('#groups').append(this.div);
+    group.appendServiceDiv(this.div);
 
     this.update = function(state) {
         this.state = state;
@@ -79,6 +94,14 @@ $(document).ready(function() {
             var json = JSON.parse(event.data);
             var service = groupManager.getService(json.service);
             service.update(json.state);
+        };
+
+        ws.onerror = function(event) {
+            alert('Warning, WebSocket connection error!');
+        };
+
+        ws.onclose = function(event) {
+            alert('Warning, WebSocket connection closed!');
         };
     });
 });
