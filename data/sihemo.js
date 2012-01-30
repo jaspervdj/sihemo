@@ -44,6 +44,7 @@ function Service(group, id, name) {
 
     this.update = function(state) {
         this.state = state;
+        this.div.children('.state').text(state);
     };
 }
 
