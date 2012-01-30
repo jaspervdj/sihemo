@@ -21,12 +21,14 @@ Library
     Sihemo.Monitor
     Sihemo.Types
     Sihemo.Web
-  
+
+  -- TODO: remove random
   Build-depends:
     aeson           >= 0.5   && < 0.6,
     base            >= 4     && < 5,
     containers      >= 0.3   && < 0.5,
     mtl             >= 2.0   && < 2.1,
+    random          >= 1.0   && < 1.1,
     snap-core       >= 0.6   && < 0.8,
     snap-server     >= 0.6   && < 0.8,
     text            >= 0.10  && < 0.12,
