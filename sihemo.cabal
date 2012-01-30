@@ -17,21 +17,22 @@ Cabal-version: >= 1.2
 Library
   Hs-source-dirs: src
 
-  -- Modules exported by the library.
   Exposed-modules:     
-    Sihemo
-  
-  
-  -- Modules not exported by this package.
-  -- Other-modules:       
-  
-  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
-  -- Build-tools:         
+    Sihemo.Monitor
+    Sihemo.Types
+    Sihemo.Web
   
   Build-depends:
     aeson           >= 0.5   && < 0.6,
     base            >= 4     && < 5,
+    containers      >= 0.3   && < 0.5,
+    mtl             >= 2.0   && < 2.1,
     snap-core       >= 0.6   && < 0.8,
     snap-server     >= 0.6   && < 0.8,
+    text            >= 0.10  && < 0.12,
     websockets      >= 0.5.2 && < 0.6,
-    websockets-snap >= 0.0   && < 0.1
+    websockets-snap >= 0.5   && < 0.6
+
+Executable sihemo
+  Hs-source-dirs: src
+  Main-is:        Main.hs
