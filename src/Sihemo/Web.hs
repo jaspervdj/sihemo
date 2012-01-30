@@ -23,11 +23,9 @@ type Web = ReaderT WebEnv Snap.Snap
 services :: Web ()
 services = do
     monitor <- webMonitor <$> ask
-    states' <- liftIO $ getStates monitor
+    states' <- liftIO $ getSnapshots monitor
     Snap.modifyResponse $ Snap.setContentType "application/json"
-    Snap.writeLBS $ A.encode $ map json states'
-  where
-    json (serv, st) = A.object ["service" A..= serv, "state" A..= st]
+    Snap.writeLBS $ A.encode $ states'
 
 site :: Web ()
 site = Snap.route

@@ -2,7 +2,7 @@
 module Sihemo.Monitor
     ( Monitor
     , newMonitor
-    , getStates
+    , getSnapshots
     , heartbeat
     ) where
 
@@ -35,9 +35,11 @@ newMonitor :: (Service -> ServiceState -> IO ())  -- ^ Up/down hook
 newMonitor hook = Monitor <$> MV.newMVar M.empty <*> pure hook
 
 -- | Get the current state of the services
-getStates :: Monitor -> IO [(Service, ServiceState)]
-getStates monitor = map (\(x, (y, _)) -> (x, y)) . M.toList
-    <$> MV.readMVar (monitorServices monitor)
+getSnapshots :: Monitor -> IO [ServiceSnapshot]
+getSnapshots monitor =
+    map mkSnapshot . M.toList <$> MV.readMVar (monitorServices monitor)
+  where
+    mkSnapshot (x, (y, _)) = ServiceSnapshot x y
 
 -- | Run hooks, if necessary
 runHook :: Monitor       -- ^ Monitor

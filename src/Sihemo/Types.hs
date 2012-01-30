@@ -2,6 +2,7 @@
 module Sihemo.Types
     ( Service (..)
     , ServiceState (..)
+    , ServiceSnapshot (..)
     , Heartbeat (..)
     ) where
 
@@ -48,6 +49,14 @@ data ServiceState = Up | Down
 instance ToJSON ServiceState where
     toJSON Up   = "up"
     toJSON Down = "down"
+
+data ServiceSnapshot = ServiceSnapshot Service ServiceState
+
+instance ToJSON ServiceSnapshot where
+    toJSON (ServiceSnapshot service state) = A.object
+        [ "service" A..= service
+        , "state"   A..= state
+        ]
 
 data Heartbeat = Heartbeat
     { heartbeatService :: Service
