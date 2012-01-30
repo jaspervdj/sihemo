@@ -11,6 +11,9 @@ import qualified Data.Aeson as A
 import qualified Data.Attoparsec as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import qualified Network.WebSockets as WS
+import qualified Network.WebSockets.Snap as WS
+import qualified Network.WebSockets.Util.PubSub as WS
 import qualified Snap.Core as Snap
 import qualified Snap.Http.Server as Snap
 import qualified Snap.Util.FileServe as Snap
@@ -20,6 +23,7 @@ import qualified Sihemo.Monitor as Monitor
 
 data WebEnv = WebEnv
     { webMonitor :: Monitor
+    , webPubSub  :: WS.PubSub WS.Hybi00
     }
 
 type Web = ReaderT WebEnv Snap.Snap
@@ -45,17 +49,26 @@ heartbeat = do
         Snap.modifyResponse $ Snap.setResponseStatus 500 "Internal server error"
         Snap.writeBS msg
 
+subscribe :: Web ()
+subscribe = do
+    pubSub <- webPubSub <$> ask
+    Snap.liftSnap $ WS.runWebSocketsSnap $ app pubSub
+  where
+    app pubSub req = do
+        WS.acceptRequest req
+        WS.subscribe pubSub
+
 site :: Web ()
 site = Snap.route
     -- TODO: use actual data directory
     [ ("",              Snap.ifTop $ Snap.serveFile "data/index.html")
     , ("services.json", services)
     , ("heartbeat",     Snap.method Snap.POST heartbeat)
-    , ("subscribe",     return ())
+    , ("subscribe",     subscribe)
     ] <|> Snap.serveDirectory "data"
 
-serve :: Monitor -> IO ()
-serve monitor =
+serve :: Monitor -> WS.PubSub WS.Hybi00 -> IO ()
+serve monitor pubSub =
     Snap.httpServe Snap.defaultConfig $ runReaderT site env
   where
-    env = WebEnv monitor
+    env = WebEnv monitor pubSub

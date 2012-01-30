@@ -72,5 +72,13 @@ $(document).ready(function() {
             var service = groupManager.getService(json[i].service);
             service.update(json[i].state);
         }
+
+        var ws = createWebSocket('/subscribe');
+
+        ws.onmessage = function(event) {
+            var json = JSON.parse(event.data);
+            var service = groupManager.getService(json.service);
+            service.update(json.state);
+        };
     });
 });

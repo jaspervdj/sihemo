@@ -26,11 +26,11 @@ getServiceState service = fromMaybe (Down, 0) . M.lookup service
 
 data Monitor = Monitor
     { monitorServices :: MVar Monitor_
-    , monitorHook     :: Service -> ServiceState -> IO ()
+    , monitorHook     :: ServiceSnapshot -> IO ()
     }
 
 -- | Create a new monitor
-newMonitor :: (Service -> ServiceState -> IO ())  -- ^ Up/down hook
+newMonitor :: (ServiceSnapshot -> IO ())  -- ^ Up/down hook
            -> IO Monitor                          -- ^ Resulting monitor
 newMonitor hook = Monitor <$> MV.newMVar M.empty <*> pure hook
 
@@ -48,7 +48,7 @@ runHook :: Monitor       -- ^ Monitor
         -> ServiceState  -- ^ New state
         -> IO ()         -- ^ Calls hook and returns
 runHook monitor service state state' = unless (state == state') $
-    monitorHook monitor service state'
+    monitorHook monitor $ ServiceSnapshot service state'
 
 -- | Send a heartbeat to the monitor
 heartbeat :: Monitor -> Heartbeat -> IO ()
