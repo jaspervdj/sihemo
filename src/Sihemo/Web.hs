@@ -6,11 +6,11 @@ module Sihemo.Web
 import Control.Applicative ((<$>), (<|>))
 import Control.Monad.Reader (ReaderT, runReaderT, ask)
 import Control.Monad.Trans (liftIO)
+import Data.Maybe (fromMaybe)
 
 import qualified Data.Aeson as A
-import qualified Data.Attoparsec as A
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Char8 as BC
+import qualified Data.Text.Encoding as T
 import qualified Network.WebSockets as WS
 import qualified Network.WebSockets.Snap as WS
 import qualified Network.WebSockets.Util.PubSub as WS
@@ -19,6 +19,7 @@ import qualified Snap.Http.Server as Snap
 import qualified Snap.Util.FileServe as Snap
 
 import Sihemo.Monitor (Monitor)
+import Sihemo.Types
 import qualified Sihemo.Monitor as Monitor
 
 data WebEnv = WebEnv
@@ -27,6 +28,9 @@ data WebEnv = WebEnv
     }
 
 type Web = ReaderT WebEnv Snap.Snap
+
+index :: Web ()
+index = Snap.serveFile "data/index.html"
 
 services :: Web ()
 services = do
@@ -38,16 +42,13 @@ services = do
 heartbeat :: Web ()
 heartbeat = do
     monitor <- webMonitor <$> ask
-    body    <- B.concat . BL.toChunks <$> Snap.readRequestBody 4096
-    case A.parseOnly A.json body of
-        Left _  -> failWith "Could not parse JSON body"
-        Right v -> case A.fromJSON v of
-            A.Error _    -> failWith "Invalid JSON data"
-            A.Success hb -> liftIO $ Monitor.heartbeat monitor hb
-  where
-    failWith msg = do
-        Snap.modifyResponse $ Snap.setResponseStatus 500 "Internal server error"
-        Snap.writeBS msg
+    malive  <- fmap (read . BC.unpack) <$> Snap.getParam "alive"
+    mgroup  <- fmap T.decodeUtf8 <$> Snap.getParam "group"
+    mname   <- fmap T.decodeUtf8 <$> Snap.getParam "name"
+    case (mgroup, mname) of
+        (Just group, Just name) -> liftIO $ Monitor.heartbeat monitor $
+            Heartbeat (Service group name) (fromMaybe 30 malive)
+        _                       -> fail "Invalid request"
 
 subscribe :: Web ()
 subscribe = do
@@ -61,10 +62,10 @@ subscribe = do
 site :: Web ()
 site = Snap.route
     -- TODO: use actual data directory
-    [ ("",              Snap.ifTop $ Snap.serveFile "data/index.html")
-    , ("services.json", services)
-    , ("heartbeat",     Snap.method Snap.POST heartbeat)
-    , ("subscribe",     subscribe)
+    [ ("/",                                Snap.ifTop $ index)
+    , ("/services.json",                   services)
+    , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
+    , ("/subscribe",                       subscribe)
     ] <|> Snap.serveDirectory "data"
 
 serve :: Monitor -> WS.PubSub WS.Hybi00 -> IO ()

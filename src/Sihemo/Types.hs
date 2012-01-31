@@ -32,8 +32,8 @@ instance ToJSON Service where
 
 instance FromJSON Service where
     parseJSON (A.Object o) = Service
-        <$> o A..: "group"
-        <*> o A..: "name"
+        <$> o A..: "group" A..!= "(no group)"
+        <*> o A..: "name"  A..!= "(no name)"
     parseJSON _            = mzero
 
 data ServiceState = Up | Down
@@ -53,17 +53,5 @@ instance ToJSON ServiceSnapshot where
 
 data Heartbeat = Heartbeat
     { heartbeatService :: Service
-    , heartbeatNext    :: Int
+    , heartbeatAlive   :: Int
     } deriving (Show)
-
-instance ToJSON Heartbeat where
-    toJSON (Heartbeat service next) = A.object
-        [ "service" A..= service
-        , "next"    A..= next
-        ]
-
-instance FromJSON Heartbeat where
-    parseJSON (A.Object o) = Heartbeat
-        <$> o A..: "service"
-        <*> o A..: "next"
-    parseJSON _            = mzero

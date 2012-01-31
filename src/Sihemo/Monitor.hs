@@ -64,7 +64,7 @@ heartbeat monitor hb = MV.modifyMVar_ (monitorServices monitor) $ \servs -> do
 -- | Code which runs in the background to check a service
 watchdog :: Monitor -> Heartbeat -> Int -> IO ()
 watchdog monitor hb tick = do
-    threadDelay (heartbeatNext hb * 1000 * 1000)
+    threadDelay (heartbeatAlive hb * 1000 * 1000)
     MV.modifyMVar_ (monitorServices monitor) $ \services -> do
         let (state, tick') = getServiceState service services
         if tick' /= tick
