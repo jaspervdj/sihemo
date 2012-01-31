@@ -1,5 +1,5 @@
 html {
-    color: black;
+    color: #666;
     font-family: sans-serif;
 }
 
@@ -8,11 +8,19 @@ body {
     margin: 0px auto 0px auto;
 }
 
+h1 {
+    margin: 18px 0px 24px 0px;
+}
+
+a {
+    color: #666;
+}
+
 div#groups div.header {
-    border-bottom: 1px dotted black;
+    border-bottom: 1px dotted #666;
     font-size: 24px;
     font-weight: bold;
-    margin: 10px 0px 0px 0px;
+    margin: 12px 0px 0px 0px;
     padding: 4px 0px 4px 0px;
 }
 
@@ -36,6 +44,12 @@ div#groups div.services div.name {
 div#groups div.services div.state {
     float: left;
     margin-right: 10px;
+}
+
+div#footer {
+    clear: both;
+    margin: 36px 0px 24px 0px;
+    text-align: center;
 }
 
 div.state {
