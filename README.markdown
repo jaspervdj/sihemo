@@ -12,7 +12,7 @@ The web interface exposes a read-only view for live monitoring.
 REST API
 --------
 
-### Gettint the currently running services and their states
+### Get the currently running services and their states
 
     GET /services.json
 
