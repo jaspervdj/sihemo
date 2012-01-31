@@ -18,28 +18,21 @@ import qualified Data.Aeson as A
 
 data Service = Service
     { serviceGroup :: Text
-    , serviceId    :: Text
     , serviceName  :: Text
-    } deriving (Show)
-
-instance Eq Service where
-    s1 == s2 = serviceGroup s1 == serviceGroup s2 &&
-        serviceId s1 == serviceId s2
+    } deriving (Eq, Show)
 
 instance Ord Service where
-    compare = comparing (serviceGroup &&& serviceId) 
+    compare = comparing (serviceGroup &&& serviceName) 
 
 instance ToJSON Service where
-    toJSON (Service group id' name) = A.object
+    toJSON (Service group name) = A.object
         [ "group" A..= group
-        , "id"    A..= id'
         , "name"  A..= name
         ]
 
 instance FromJSON Service where
     parseJSON (A.Object o) = Service
         <$> o A..: "group"
-        <*> o A..: "id"
         <*> o A..: "name"
     parseJSON _            = mzero
 

@@ -17,20 +17,22 @@ import Sihemo.Types
 import Sihemo.Monitor
 import Sihemo.Web
 
-demo :: Monitor -> Int -> IO ()
-demo monitor nr = forever $ do
+demo :: Monitor -> Service -> IO ()
+demo monitor service = forever $ do
     heartbeat monitor $ Heartbeat service 5
     random <- randomRIO (2, 6)
     threadDelay $ random * 1000 * 1000
-  where
-    service = Service "demo" ("demo-" `T.append` nr') ("Demo " `T.append` nr')
-    nr'     = T.pack (show nr)
 
 main :: IO ()
 main = do
     pubSub  <- WS.newPubSub
     monitor <- newMonitor $ WS.publish pubSub . WS.textData . A.encode
-    forM_ [1 .. 10] $ \i -> do
-        _ <- forkIO $ demo monitor i
-        return ()
+    forM_ [1 :: Int .. 5] $ \i -> do
+        forM_ (services i) $ \s -> do
+            _ <- forkIO $ demo monitor s
+            return ()
     serve monitor pubSub
+  where
+    services nr = map (Service group) ["usb", "gyrid", "ping"]
+      where
+        group = "gyrid-" `T.append` (T.pack (show nr))

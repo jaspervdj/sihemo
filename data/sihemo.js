@@ -51,12 +51,12 @@ function Group(name) {
 
 Group.prototype.getService = function(json) {
     var service;
-    if(this.services[json.id]) {
-        service = this.services[json.id];
+    if(this.services[json.name]) {
+        service = this.services[json.name];
     } else {
-        service = new Service(json.id, json.name);
+        service = new Service(json.name);
         service.addChangeListener(this);
-        this.services[json.id] = service;
+        this.services[json.name] = service;
         this.triggerChange();
     }
 
@@ -126,9 +126,8 @@ GroupView.prototype.onChange = function(group) {
 Service.prototype = new Model();
 Service.prototype.constructor = Service;
 
-function Service(id, name) {
+function Service(name) {
     Model.call(this);
-    this.id   = id;
     this.name = name;
     this.up   = false;
 }
