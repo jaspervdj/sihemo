@@ -18,6 +18,7 @@ Library
   Hs-source-dirs: src
 
   Exposed-modules:     
+    Sihemo.Client
     Sihemo.Monitor
     Sihemo.Types
     Sihemo.Web
