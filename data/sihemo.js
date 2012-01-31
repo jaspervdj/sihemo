@@ -23,6 +23,22 @@ Model.prototype.triggerChange = function() {
 };
 
 
+function StateView(model) {
+    this.model = model;
+    this.div   = $(document.createElement('div'));
+
+    this.div.addClass('state');
+
+    this.model.addChangeListener(this);
+    this.onChange(this.model);
+}
+
+StateView.prototype.onChange = function(model) {
+    this.div.removeClass('up down');
+    this.div.addClass(model.isUp() ? 'up' : 'down');
+}
+
+
 Group.prototype = new Model();
 Group.prototype.constructor = Group;
 
@@ -51,7 +67,7 @@ Group.prototype.onChange = function() {
     var allUp = true;
 
     for(var i in this.services) {
-        allUp = allUp && this.services[i].state == 'up';
+        allUp = allUp && this.services[i].isUp();
     }
 
     if(allUp != this.allUp) {
@@ -60,19 +76,27 @@ Group.prototype.onChange = function() {
     }
 };
 
+Group.prototype.isUp = function() {
+    return this.allUp;
+}
+
 
 function GroupView(group) {
-    this.group    = group;
-    this.div      = $(document.createElement('div'));
-    this.services = {};
+    this.group     = group;
+    this.div       = $(document.createElement('div'));
+    this.services  = {};
+    this.stateView = new StateView(group);
 
     var servicesDiv = this.servicesDiv = $(document.createElement('div'))
             .addClass('services')
             .hide();
 
-    this.header = $(document.createElement('h2'))
+    this.header = $(document.createElement('div'))
+            .addClass('header')
             .text(group.name)
             .click(function () {servicesDiv.toggle(100)});
+
+    this.header.append(this.stateView.div);
 
     this.div.append(this.header);
     this.div.append(this.servicesDiv);
@@ -81,7 +105,8 @@ function GroupView(group) {
     this.onChange(group);
 }
 
-GroupView.prototype.addMissingServiceViews = function() {
+GroupView.prototype.onChange = function(group) {
+    /* Add missing service views */
     for(var i in this.group.services) {
         if(!this.services[i]) {
             var serviceView = new ServiceView(this.group.services[i]);
@@ -91,36 +116,33 @@ GroupView.prototype.addMissingServiceViews = function() {
     }
 }
 
-GroupView.prototype.onChange = function(group) {
-    this.addMissingServiceViews();
-    this.div.children('h2')
-            .removeClass('up down')
-            .addClass(group.allUp ? 'up' : 'down');
-}
-
 
 Service.prototype = new Model();
 Service.prototype.constructor = Service;
 
 function Service(id, name) {
     Model.call(this);
-    this.id    = id;
-    this.name  = name;
-    this.state = 'down';
+    this.id   = id;
+    this.name = name;
+    this.up   = false;
 }
 
 Service.prototype.setState = function(state) {
-    this.state = state;
+    this.up = state == 'up';
     this.triggerChange();
 };
 
+Service.prototype.isUp = function() {
+    return this.up;
+}
+
 
 function ServiceView(service) {
-    this.service = service;
-    this.div     = $(document.createElement('div'));
+    this.service   = service;
+    this.div       = $(document.createElement('div'));
+    this.stateView = new StateView(service);
 
-    this.div.append($(document.createElement('div'))
-            .addClass('state'));
+    this.div.append(this.stateView.div);
     this.div.append($(document.createElement('div'))
             .addClass('name')
             .text(service.name));
@@ -129,9 +151,6 @@ function ServiceView(service) {
 }
 
 ServiceView.prototype.onChange = function(service) {
-    this.div.children('.state')
-            .removeClass('up down')
-            .addClass(service.state);
 }
 
 
