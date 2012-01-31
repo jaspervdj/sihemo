@@ -18,9 +18,12 @@ Library
   Hs-source-dirs: src
 
   Exposed-modules:     
+    Sihemo
     Sihemo.Client
     Sihemo.Monitor
     Sihemo.Types
+
+  Other-modules:
     Sihemo.Web
 
   -- TODO: remove random
