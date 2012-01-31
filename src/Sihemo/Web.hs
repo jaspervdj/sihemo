@@ -7,6 +7,7 @@ import Control.Applicative ((<$>), (<|>))
 import Control.Monad.Reader (ReaderT, runReaderT, ask)
 import Control.Monad.Trans (liftIO)
 import Data.Maybe (fromMaybe)
+import System.FilePath ((</>))
 
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Char8 as BC
@@ -18,6 +19,7 @@ import qualified Snap.Core as Snap
 import qualified Snap.Http.Server as Snap
 import qualified Snap.Util.FileServe as Snap
 
+import Paths_sihemo
 import Sihemo.Monitor (Monitor)
 import Sihemo.Types
 import qualified Sihemo.Monitor as Monitor
@@ -25,12 +27,15 @@ import qualified Sihemo.Monitor as Monitor
 data WebEnv = WebEnv
     { webMonitor :: Monitor
     , webPubSub  :: WS.PubSub WS.Hybi00
+    , webDataDir :: FilePath
     }
 
 type Web = ReaderT WebEnv Snap.Snap
 
 index :: Web ()
-index = Snap.serveFile "data/index.html"
+index = do
+    dataDir <- webDataDir <$> ask
+    Snap.serveFile $ dataDir </> "index.html"
 
 services :: Web ()
 services = do
@@ -68,17 +73,19 @@ subscribe = do
         WS.subscribe pubSub
 
 site :: Web ()
-site = Snap.route
-    -- TODO: use actual data directory
-    [ ("/",                                Snap.ifTop $ index)
-    , ("/services.json",                   services)
-    , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
-    , ("/services/:group/:name",           Snap.method Snap.DELETE shutdown)
-    , ("/subscribe",                       subscribe)
-    ] <|> Snap.serveDirectory "data"
+site = do
+    dataDir <- webDataDir <$> ask
+    Snap.route
+        [ ("/",                                Snap.ifTop $ index)
+        , ("/services.json",                   services)
+        , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
+        , ("/services/:group/:name",           Snap.method Snap.DELETE shutdown)
+        , ("/subscribe",                       subscribe)
+        ] <|> Snap.serveDirectory dataDir
 
 serve :: Monitor -> WS.PubSub WS.Hybi00 -> IO ()
-serve monitor pubSub =
-    Snap.httpServe Snap.defaultConfig $ runReaderT site env
+serve monitor pubSub = do
+    dataDir <- getDataDir
+    Snap.httpServe Snap.defaultConfig $ runReaderT site $ env dataDir
   where
     env = WebEnv monitor pubSub
