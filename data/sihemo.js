@@ -91,12 +91,18 @@ function GroupView(group) {
             .addClass('services')
             .hide();
 
-    this.header = $(document.createElement('div'))
-            .addClass('header')
-            .text(group.name)
-            .click(function () {servicesDiv.toggle(100)});
+    this.header = $(document.createElement('div')).addClass('header');
 
+
+    this.header.append($(document.createElement('a'))
+            .addClass('toggle')
+            .attr('href', '#')
+            .click(function () {
+                servicesDiv.toggle(100);
+                $(this).toggleClass('show');
+            }));
     this.header.append(this.stateView.div);
+    this.header.append(group.name)
 
     this.div.append(this.header);
     this.div.append(this.servicesDiv);

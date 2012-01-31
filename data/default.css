@@ -11,13 +11,20 @@ body {
 div#groups div.header {
     border-bottom: 1px dotted black;
     font-size: 24px;
+    font-weight: bold;
     margin: 10px 0px 0px 0px;
-    padding: 5px 5px 5px 5px;
+    padding: 4px 0px 4px 0px;
+}
+
+div#groups div.header a.toggle {
+    float: right;
+    margin-top: 2px;
 }
 
 div#groups div.header div.state {
-    float: right;
-    margin-top: 4px;
+    float: left;
+    margin-right: 10px;
+    margin-top: 2px;
 }
 
 div#groups div.services div.name {
@@ -39,4 +46,15 @@ div.state {
 
 div.state.up {
     background-image: url('up.png');
+}
+
+a.toggle {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-image: url('show.png');
+}
+
+a.toggle.show {
+    background-image: url('hide.png');
 }
