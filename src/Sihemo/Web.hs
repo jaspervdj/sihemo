@@ -39,16 +39,24 @@ services = do
     Snap.modifyResponse $ Snap.setContentType "application/json"
     Snap.writeLBS $ A.encode $ states'
 
+withService :: (Service -> Web ()) -> Web ()
+withService f = do
+    mgroup <- fmap T.decodeUtf8 <$> Snap.getParam "group"
+    mname  <- fmap T.decodeUtf8 <$> Snap.getParam "name"
+    case (mgroup, mname) of
+        (Just group, Just name) -> f $ Service group name
+        _                       -> fail "Invalid request"
+
 heartbeat :: Web ()
-heartbeat = do
+heartbeat = withService $ \service -> do
     monitor <- webMonitor <$> ask
     malive  <- fmap (read . BC.unpack) <$> Snap.getParam "alive"
-    mgroup  <- fmap T.decodeUtf8 <$> Snap.getParam "group"
-    mname   <- fmap T.decodeUtf8 <$> Snap.getParam "name"
-    case (mgroup, mname) of
-        (Just group, Just name) -> liftIO $ Monitor.heartbeat monitor $
-            Heartbeat (Service group name) (fromMaybe 30 malive)
-        _                       -> fail "Invalid request"
+    liftIO $ Monitor.heartbeat monitor $ Heartbeat service (fromMaybe 30 malive)
+
+shutdown :: Web ()
+shutdown = withService $ \service -> do
+    monitor <- webMonitor <$> ask
+    liftIO $ Monitor.shutdown monitor service
 
 subscribe :: Web ()
 subscribe = do
@@ -65,6 +73,7 @@ site = Snap.route
     [ ("/",                                Snap.ifTop $ index)
     , ("/services.json",                   services)
     , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
+    , ("/services/:group/:name/shutdown",  Snap.method Snap.POST shutdown)
     , ("/subscribe",                       subscribe)
     ] <|> Snap.serveDirectory "data"
 

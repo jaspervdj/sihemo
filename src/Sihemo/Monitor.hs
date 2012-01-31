@@ -4,6 +4,7 @@ module Sihemo.Monitor
     , newMonitor
     , getSnapshots
     , heartbeat
+    , shutdown
     ) where
 
 import Control.Applicative (pure, (<$>), (<*>))
@@ -67,10 +68,17 @@ watchdog monitor hb tick = do
     threadDelay (heartbeatAlive hb * 1000 * 1000)
     MV.modifyMVar_ (monitorServices monitor) $ \services -> do
         let (state, tick') = getServiceState service services
-        if tick' /= tick
+        if state /= Up || tick' /= tick
             then return services
             else do
                 runHook monitor service state Down
                 return $ M.insert service (Down, tick) services
   where
     service = heartbeatService hb
+
+-- | Safely shut down a service
+shutdown :: Monitor -> Service -> IO ()
+shutdown monitor serv = MV.modifyMVar_ (monitorServices monitor) $ \servs -> do
+    let (state, tick) = getServiceState serv servs
+    runHook monitor serv state Shutdown
+    return $ M.insert serv (Shutdown, tick) servs

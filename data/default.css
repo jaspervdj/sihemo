@@ -62,6 +62,10 @@ div.state.up {
     background-image: url('up.png');
 }
 
+div.state.shutdown {
+    background-image: url('shutdown.png');
+}
+
 a.toggle {
     display: block;
     width: 24px;

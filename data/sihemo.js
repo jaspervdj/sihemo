@@ -35,8 +35,8 @@ function StateView(model) {
 }
 
 StateView.prototype.onChange = function(model) {
-    this.div.removeClass('up down');
-    this.div.addClass(model.isUp() ? 'up' : 'down');
+    this.div.removeClass('up down shutdown');
+    this.div.addClass(model.getState());
 }
 
 
@@ -47,7 +47,7 @@ function Group(name) {
     Model.call(this);
     this.name     = name;
     this.services = {};
-    this.allUp    = true;
+    this.allOk    = true;
 }
 
 Group.prototype.getService = function(json) {
@@ -65,22 +65,20 @@ Group.prototype.getService = function(json) {
 };
 
 Group.prototype.onChange = function() {
-    var allUp = true;
+    var allOk = true;
 
     for(var i in this.services) {
-        allUp = allUp && this.services[i].isUp();
+        allOk = allOk && this.services[i].isOk();
     }
-
-    if(allUp != this.allUp) {
-        this.allUp = allUp;
+    if(allOk != this.allOk) {
+        this.allOk = allOk;
         this.triggerChange();
     }
 };
 
-Group.prototype.isUp = function() {
-    return this.allUp;
-}
-
+Group.prototype.getState = function() {
+    return this.allOk ? 'up' : 'down';
+};
 
 function GroupView(group) {
     this.group     = group;
@@ -129,18 +127,24 @@ Service.prototype.constructor = Service;
 
 function Service(name) {
     Model.call(this);
-    this.name = name;
-    this.up   = false;
+    this.name  = name;
+    this.state = 'down';
 }
 
 Service.prototype.setState = function(state) {
-    this.up = state == 'up';
-    this.triggerChange();
+    if(state != this.state) {
+        this.state = state;
+        this.triggerChange();
+    }
 };
 
-Service.prototype.isUp = function() {
-    return this.up;
-}
+Service.prototype.getState = function() {
+    return this.state;
+};
+
+Service.prototype.isOk = function() {
+    return this.state != 'down';
+};
 
 
 function ServiceView(service) {

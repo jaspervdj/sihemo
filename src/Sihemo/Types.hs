@@ -36,12 +36,13 @@ instance FromJSON Service where
         <*> o A..: "name"  A..!= "(no name)"
     parseJSON _            = mzero
 
-data ServiceState = Up | Down
+data ServiceState = Up | Down | Shutdown
     deriving (Eq, Show)
 
 instance ToJSON ServiceState where
-    toJSON Up   = "up"
-    toJSON Down = "down"
+    toJSON Up       = "up"
+    toJSON Down     = "down"
+    toJSON Shutdown = "shutdown"
 
 data ServiceSnapshot = ServiceSnapshot Service ServiceState
 
