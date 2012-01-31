@@ -1,7 +1,8 @@
 function createWebSocket(path) {
     var host = window.location.hostname;
+    var port = window.location.port;
     if(host == '') host = 'localhost';
-    var uri = 'ws://' + host + ':8000' + path;
+    var uri = 'ws://' + host + ':' + port + path;
 
     var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
     return new Socket(uri);
