@@ -73,7 +73,7 @@ site = Snap.route
     [ ("/",                                Snap.ifTop $ index)
     , ("/services.json",                   services)
     , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
-    , ("/services/:group/:name/shutdown",  Snap.method Snap.POST shutdown)
+    , ("/services/:group/:name",           Snap.method Snap.DELETE shutdown)
     , ("/subscribe",                       subscribe)
     ] <|> Snap.serveDirectory "data"
 

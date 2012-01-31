@@ -4,6 +4,11 @@ sihemo
 `sihemo` is a SImple HEartbeat MOnitoring application. It provides a web
 interface and a REST API.
 
+Web interface
+-------------
+
+The web interface exposes a read-only view for live monitoring.
+
 REST API
 --------
 
@@ -32,11 +37,16 @@ Example:
 
 ### Shut down a service
 
-    POST /services/:group/:name/shutdown
+    DELETE /services/:group/:name
 
 Safely shut down the specified service. This will cause the system not to panic
 when no further heartbeats arrive.
 
 Example:
 
-    curl -XPOST localhost:8000/services/galactica/shields/shutdown
+    curl -XDELETE localhost:8000/services/galactica/shields
+
+Haskell API
+-----------
+
+(to document)

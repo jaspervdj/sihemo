@@ -23,7 +23,7 @@ type Tick = Int
 type Monitor_ = Map Service (ServiceState, Tick)
 
 getServiceState :: Service -> Monitor_ -> (ServiceState, Tick)
-getServiceState service = fromMaybe (Down, 0) . M.lookup service
+getServiceState service = fromMaybe (Shutdown, 0) . M.lookup service
 
 data Monitor = Monitor
     { monitorServices :: MVar Monitor_
@@ -79,6 +79,6 @@ watchdog monitor hb tick = do
 -- | Safely shut down a service
 shutdown :: Monitor -> Service -> IO ()
 shutdown monitor serv = MV.modifyMVar_ (monitorServices monitor) $ \servs -> do
-    let (state, tick) = getServiceState serv servs
+    let (state, _) = getServiceState serv servs
     runHook monitor serv state Shutdown
-    return $ M.insert serv (Shutdown, tick) servs
+    return $ M.delete serv servs
