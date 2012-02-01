@@ -1,1 +1,3 @@
 :set -isrc -idist/build/autogen
+:set -i../websockets/src
+:set -i../websockets-snap/src

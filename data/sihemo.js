@@ -186,7 +186,7 @@ GroupManager.prototype.getService = function(json) {
 $(document).ready(function() {
     var groupManager = new GroupManager();
 
-    $.get('services.json', function(json) {
+    $.get('/services', function(json) {
         for(var i in json) {
             var service = groupManager.getService(json[i].service);
             service.setState(json[i].state);

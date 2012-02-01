@@ -32,6 +32,11 @@ data WebEnv = WebEnv
 
 type Web = ReaderT WebEnv Snap.Snap
 
+writeAeson :: (A.ToJSON a, Snap.MonadSnap m) => a -> m ()
+writeAeson x = do
+    Snap.modifyResponse $ Snap.setContentType "application/json"
+    Snap.writeLBS $ A.encode x
+
 index :: Web ()
 index = do
     dataDir <- webDataDir <$> ask
@@ -40,9 +45,8 @@ index = do
 services :: Web ()
 services = do
     monitor <- webMonitor <$> ask
-    states' <- liftIO $ Monitor.getSnapshots monitor
-    Snap.modifyResponse $ Snap.setContentType "application/json"
-    Snap.writeLBS $ A.encode $ states'
+    states' <- liftIO $ Monitor.getStates monitor
+    writeAeson states'
 
 withService :: (Service -> Web ()) -> Web ()
 withService f = do
@@ -52,16 +56,22 @@ withService f = do
         (Just group, Just name) -> f $ Service group name
         _                       -> fail "Invalid request"
 
+service :: Web ()
+service = withService $ \serv -> do
+    monitor <- webMonitor <$> ask
+    state   <- liftIO $ Monitor.getState monitor serv
+    writeAeson $ ServiceSnapshot serv state
+
 heartbeat :: Web ()
-heartbeat = withService $ \service -> do
+heartbeat = withService $ \serv -> do
     monitor <- webMonitor <$> ask
     malive  <- fmap (read . BC.unpack) <$> Snap.getParam "alive"
-    liftIO $ Monitor.heartbeat monitor $ Heartbeat service (fromMaybe 30 malive)
+    liftIO $ Monitor.heartbeat monitor $ Heartbeat serv (fromMaybe 30 malive)
 
 shutdown :: Web ()
-shutdown = withService $ \service -> do
+shutdown = withService $ \serv -> do
     monitor <- webMonitor <$> ask
-    liftIO $ Monitor.shutdown monitor service
+    liftIO $ Monitor.shutdown monitor serv
 
 subscribe :: Web ()
 subscribe = do
@@ -77,7 +87,8 @@ site = do
     dataDir <- webDataDir <$> ask
     Snap.route
         [ ("/",                                Snap.ifTop $ index)
-        , ("/services.json",                   services)
+        , ("/services",                        Snap.method Snap.GET services)
+        , ("/services/:group/:name",           Snap.method Snap.GET service)
         , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
         , ("/services/:group/:name",           Snap.method Snap.DELETE shutdown)
         , ("/subscribe",                       subscribe)
