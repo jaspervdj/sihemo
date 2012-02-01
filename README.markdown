@@ -14,11 +14,19 @@ REST API
 
 ### Get the currently running services and their states
 
-    GET /services.json
+    GET /services
 
 Example:
 
-    curl localhost:8000/services.json
+    curl localhost:8000/services
+
+### Get information about a single service
+
+    GET /services/:group/:name
+
+Example:
+
+    curl localhost:8000/services/galactica/shields
 
 ### Sending a heartbeat
 
