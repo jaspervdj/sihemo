@@ -30,7 +30,7 @@ Example:
 
 ### Sending a heartbeat
 
-    POST /services/:group/:name/heartbeat
+    POST /services/:group/:name
 
 Send a heartbeat for the specified service.
 

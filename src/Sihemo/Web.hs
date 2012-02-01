@@ -86,12 +86,12 @@ site :: Web ()
 site = do
     dataDir <- webDataDir <$> ask
     Snap.route
-        [ ("/",                                Snap.ifTop $ index)
-        , ("/services",                        Snap.method Snap.GET services)
-        , ("/services/:group/:name",           Snap.method Snap.GET service)
-        , ("/services/:group/:name/heartbeat", Snap.method Snap.POST heartbeat)
-        , ("/services/:group/:name",           Snap.method Snap.DELETE shutdown)
-        , ("/subscribe",                       subscribe)
+        [ ("/",                      Snap.ifTop $ index)
+        , ("/services",              Snap.method Snap.GET services)
+        , ("/services/:group/:name", Snap.method Snap.GET service)
+        , ("/services/:group/:name", Snap.method Snap.POST heartbeat)
+        , ("/services/:group/:name", Snap.method Snap.DELETE shutdown)
+        , ("/subscribe",             subscribe)
         ] <|> Snap.serveDirectory dataDir
 
 serve :: Monitor -> WS.PubSub WS.Hybi00 -> IO ()
