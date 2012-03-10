@@ -17,6 +17,14 @@ class Sihemo
     end
   end
 
+  def down(group, name)
+    run_http do |http|
+      request = Net::HTTP::Post.new service_path(group, name)
+      request.set_form_data('state' => 'down')
+      http.request request
+    end
+  end
+
   def shutdown(group, name)
     run_http do |http|
       request = Net::HTTP::Delete.new service_path(group, name)
@@ -33,4 +41,11 @@ class Sihemo
   def service_path(group, name)
     "#{@path}/services/#{group}/#{name}"
   end
+end
+
+def test
+  s = Sihemo.new('localhost', 8000)
+  s.heartbeat('galactica', 'shields', 5)
+  s.down('galactica', 'shields')
+  s.shutdown('galactica', 'shields')
 end
