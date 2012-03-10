@@ -41,7 +41,21 @@ Parameters:
 
 Example:
 
-    curl -XPOST -d alive=30 localhost:8000/services/galactica/shields/heartbeat
+    curl -XPOST -d alive=30 localhost:8000/services/galactica/shields
+
+### Notify sihemo that a service is down
+
+    POST /services/:group/:name
+
+Notify `sihemo` that the given service is down.
+
+- Parameters:
+
+- `state`, must be set to `down`.
+
+Example:
+
+    curl -XPOST -d state=down localhost:8000/services/galactica/shields
 
 ### Shut down a service
 
