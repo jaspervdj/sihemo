@@ -42,10 +42,3 @@ class Sihemo
     "#{@path}/services/#{group}/#{name}"
   end
 end
-
-def test
-  s = Sihemo.new('localhost', 8000)
-  s.heartbeat('galactica', 'shields', 5)
-  s.down('galactica', 'shields')
-  s.shutdown('galactica', 'shields')
-end
