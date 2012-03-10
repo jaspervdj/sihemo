@@ -5,6 +5,7 @@ module Sihemo.Monitor
     , getState
     , getStates
     , heartbeat
+    , down
     , shutdown
     ) where
 
@@ -81,6 +82,13 @@ watchdog monitor hb tick = do
                 return $ M.insert service (Down, tick) services
   where
     service = heartbeatService hb
+
+-- | Instantly put a service in the down state, cause the system to panic
+down :: Monitor -> Service -> IO ()
+down monitor serv = MV.modifyMVar_ (monitorServices monitor) $ \servs -> do
+    let (state, tick) = getServiceState serv servs
+    runHook monitor serv state Down
+    return $ M.insert serv (Down, tick) servs
 
 -- | Safely shut down a service
 shutdown :: Monitor -> Service -> IO ()

@@ -62,11 +62,24 @@ service = withService $ \serv -> do
     state   <- liftIO $ Monitor.getState monitor serv
     writeAeson $ ServiceSnapshot serv state
 
+-- | Delegates to 'down' or 'heartbeat'
+postService :: Web ()
+postService = do
+    state <- Snap.getParam "state"
+    case state of
+        Just "down" -> down
+        _           -> heartbeat
+
 heartbeat :: Web ()
 heartbeat = withService $ \serv -> do
     monitor <- webMonitor <$> ask
     malive  <- fmap (read . BC.unpack) <$> Snap.getParam "alive"
     liftIO $ Monitor.heartbeat monitor $ Heartbeat serv (fromMaybe 30 malive)
+
+down :: Web ()
+down = withService $ \serv -> do
+    monitor <- webMonitor <$> ask
+    liftIO $ Monitor.down monitor serv
 
 shutdown :: Web ()
 shutdown = withService $ \serv -> do
@@ -89,7 +102,7 @@ site = do
         [ ("/",                      Snap.ifTop $ index)
         , ("/services",              Snap.method Snap.GET services)
         , ("/services/:group/:name", Snap.method Snap.GET service)
-        , ("/services/:group/:name", Snap.method Snap.POST heartbeat)
+        , ("/services/:group/:name", Snap.method Snap.POST postService)
         , ("/services/:group/:name", Snap.method Snap.DELETE shutdown)
         , ("/subscribe",             subscribe)
         ] <|> Snap.serveDirectory dataDir
