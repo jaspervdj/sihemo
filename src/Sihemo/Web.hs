@@ -26,7 +26,7 @@ import qualified Sihemo.Monitor as Monitor
 
 data WebEnv = WebEnv
     { webMonitor :: Monitor
-    , webPubSub  :: WS.PubSub WS.Hybi00
+    , webPubSub  :: WS.PubSub WS.Hybi10
     , webDataDir :: FilePath
     }
 
@@ -93,6 +93,7 @@ subscribe = do
   where
     app pubSub req = do
         WS.acceptRequest req
+        WS.spawnPingThread 10
         WS.subscribe pubSub
 
 site :: Web ()
@@ -107,7 +108,7 @@ site = do
         , ("/subscribe",             subscribe)
         ] <|> Snap.serveDirectory dataDir
 
-serve :: Monitor -> WS.PubSub WS.Hybi00 -> IO ()
+serve :: Monitor -> WS.PubSub WS.Hybi10 -> IO ()
 serve monitor pubSub = do
     dataDir <- getDataDir
     Snap.httpServe Snap.defaultConfig $ runReaderT site $ env dataDir
