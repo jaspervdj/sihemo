@@ -34,21 +34,19 @@ Library
   Other-modules:
     Sihemo.Web
 
-  -- TODO: remove random
   Build-depends:
-    aeson           >= 0.5   && < 0.7,
-    attoparsec      >= 0.9   && < 0.11,
-    base            >= 4     && < 5,
-    bytestring      >= 0.9   && < 0.10,
-    containers      >= 0.3   && < 0.5,
-    filepath        >= 1.1   && < 1.4,
-    mtl             >= 2.0   && < 2.1,
-    random          >= 1.0   && < 1.1,
-    snap-core       >= 0.6   && < 0.8,
-    snap-server     >= 0.6   && < 0.8,
-    text            >= 0.10  && < 0.12,
-    websockets      >= 0.5.2 && < 0.6,
-    websockets-snap >= 0.5   && < 0.6
+    aeson           >= 0.5  && < 0.7,
+    attoparsec      >= 0.9  && < 0.11,
+    base            >= 4    && < 5,
+    bytestring      >= 0.9  && < 0.10,
+    containers      >= 0.3  && < 0.5,
+    filepath        >= 1.1  && < 1.4,
+    mtl             >= 2.0  && < 2.1,
+    snap-core       >= 0.8  && < 0.9,
+    snap-server     >= 0.8  && < 0.9,
+    text            >= 0.10 && < 0.12,
+    websockets      >= 0.6  && < 0.7,
+    websockets-snap >= 0.6  && < 0.7
 
 Executable sihemo
   Hs-source-dirs: src
