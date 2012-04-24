@@ -81,6 +81,7 @@ Group.prototype.getState = function() {
     return this.allOk ? 'up' : 'down';
 };
 
+
 function GroupView(group) {
     this.group     = group;
     this.div       = $(document.createElement('div'));
@@ -92,7 +93,7 @@ function GroupView(group) {
             .hide();
 
     this.header = $(document.createElement('div')).addClass('header');
-    header = this.header;
+    var header = this.header;
 
     this.header.append($(document.createElement('a'))
             .addClass('toggle')
