@@ -108,9 +108,10 @@ site = do
         , ("/subscribe",             subscribe)
         ] <|> Snap.serveDirectory dataDir
 
-serve :: Monitor -> WS.PubSub WS.Hybi10 -> IO ()
-serve monitor pubSub = do
+serve :: Int -> Monitor -> WS.PubSub WS.Hybi10 -> IO ()
+serve port monitor pubSub = do
     dataDir <- getDataDir
-    Snap.httpServe Snap.defaultConfig $ runReaderT site $ env dataDir
+    Snap.httpServe config $ runReaderT site $ env dataDir
   where
-    env = WebEnv monitor pubSub
+    env    = WebEnv monitor pubSub
+    config = Snap.setPort port Snap.defaultConfig

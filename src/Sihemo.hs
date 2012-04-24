@@ -12,7 +12,8 @@ import Sihemo.Types
 import Sihemo.Web
 
 -- | Start the web server. This function blocks forever.
-runSihemo :: IO ()
+runSihemo :: Int    -- ^ Web port
+          -> IO ()  -- ^ Blocks forever
 runSihemo = runSihemoWith noHook noHook
   where
     noHook _ = return ()
@@ -25,12 +26,13 @@ runSihemo = runSihemoWith noHook noHook
 -- register some custom checks with the monitor.
 runSihemoWith :: (ServiceSnapshot -> IO ())  -- ^ Snapshot hook
               -> (Monitor -> IO ())          -- ^ Setup hook
+              -> Int                         -- ^ Web port
               -> IO ()                       -- ^ Blocks forever
-runSihemoWith hook setupMonitor = do
+runSihemoWith hook setupMonitor port = do
     pubSub  <- WS.newPubSub
     monitor <- newMonitor $ hook' pubSub
     setupMonitor monitor
-    serve monitor pubSub
+    serve port monitor pubSub
   where
     hook' pubSub snapshot = do
         WS.publish pubSub $ WS.textData $ A.encode snapshot
