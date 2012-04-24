@@ -95,13 +95,13 @@ function GroupView(group) {
 
     this.header.append($(document.createElement('a'))
             .addClass('toggle')
-            .attr('href', '#')
-            .click(function () {
-                servicesDiv.toggle(100);
-                $(this).toggleClass('show');
-            }));
+            .attr('href', '#'));
     this.header.append(this.stateView.div);
     this.header.append(group.name)
+    this.header.click(function () {
+        servicesDiv.toggle(100);
+        $(this.header.children('a')).toggleClass('show');
+    });
 
     this.div.append(this.header);
     this.div.append(this.servicesDiv);
