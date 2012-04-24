@@ -58,6 +58,7 @@ Group.prototype.getService = function(json) {
         service = new Service(json.name);
         service.addChangeListener(this);
         this.services[json.name] = service;
+	this.onChange();
         this.triggerChange();
     }
 
@@ -91,7 +92,7 @@ function GroupView(group) {
             .hide();
 
     this.header = $(document.createElement('div')).addClass('header');
-
+    header = this.header;
 
     this.header.append($(document.createElement('a'))
             .addClass('toggle')
@@ -100,7 +101,7 @@ function GroupView(group) {
     this.header.append(group.name)
     this.header.click(function () {
         servicesDiv.toggle(100);
-        $(this.header.children('a')).toggleClass('show');
+        $(header.children('a')).toggleClass('show');
     });
 
     this.div.append(this.header);
