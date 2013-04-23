@@ -22,7 +22,7 @@ data Service = Service
     } deriving (Eq, Show)
 
 instance Ord Service where
-    compare = comparing (serviceGroup &&& serviceName) 
+    compare = comparing (serviceGroup &&& serviceName)
 
 instance ToJSON Service where
     toJSON (Service group name) = A.object

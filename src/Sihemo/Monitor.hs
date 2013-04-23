@@ -34,7 +34,7 @@ data Monitor = Monitor
 
 -- | Create a new monitor
 newMonitor :: (ServiceSnapshot -> IO ())  -- ^ Up/down hook
-           -> IO Monitor                          -- ^ Resulting monitor
+           -> IO Monitor                  -- ^ Resulting monitor
 newMonitor hook = Monitor <$> MV.newMVar M.empty <*> pure hook
 
 -- | Get the current state of a single service
