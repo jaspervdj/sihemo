@@ -12,6 +12,7 @@ import Control.Monad (mzero)
 import Data.Ord (comparing)
 
 import Data.Text (Text)
+import qualified Data.Text as T
 
 import Data.Aeson (ToJSON (..), FromJSON (..))
 import qualified Data.Aeson as A
@@ -19,7 +20,7 @@ import qualified Data.Aeson as A
 data Service = Service
     { serviceGroup :: Text
     , serviceName  :: Text
-    } deriving (Eq, Show)
+    } deriving (Eq)
 
 instance Ord Service where
     compare = comparing (serviceGroup &&& serviceName)
@@ -35,6 +36,9 @@ instance FromJSON Service where
         <$> o A..: "group" A..!= "(no group)"
         <*> o A..: "name"  A..!= "(no name)"
     parseJSON _            = mzero
+
+instance Show Service where
+    show (Service group name) = T.unpack group ++ "/" ++ T.unpack name
 
 data ServiceState = Up | Down | Shutdown
     deriving (Eq, Show)
