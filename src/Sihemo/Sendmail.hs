@@ -10,7 +10,7 @@ sendmail :: String    -- ^ Recipient
          -> [String]  -- ^ Content (lines)
          -> IO ()     -- ^ Blocks until mail is sent
 sendmail recipient subject body = do
-    _ <- readProcess "/usr/sbin/sendmail" [] $ unlines $
+    _ <- readProcess "/usr/sbin/sendmail" ["-t"] $ unlines $
         [ "To: " ++ recipient
         , "Subject: " ++ subject
         , "Content-Type: text/plain"
