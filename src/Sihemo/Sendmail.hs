@@ -13,7 +13,6 @@ sendmail recipient subject body = do
     _ <- readProcess "/usr/sbin/sendmail" ["-t"] $ unlines $
         [ "To: " ++ recipient
         , "Subject: " ++ subject
-        , "Content-Type: text/plain"
         , ""
         ] ++ body
     return ()
